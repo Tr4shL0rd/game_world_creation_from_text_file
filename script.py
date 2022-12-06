@@ -8,7 +8,7 @@ MAP = "".join(tuple(MAP.strip() for MAP in open("map.txt", "r").readlines()))
 map_file = open("map.txt", "r").readline()
 SCREEN_MAP_SIZE= (len(map_file)-1) * 60
 
-SCREEN_HEIGHT = SCREEN_MAP_SIZE # 480
+SCREEN_HEIGHT = SCREEN_MAP_SIZE  # 480
 SCREEN_WIDTH  = SCREEN_MAP_SIZE # SCREEN_HEIGHT * 2
 MAP_SIZE      = SCREEN_HEIGHT//60 # 8
 TILE_SIZE     = ((SCREEN_WIDTH) // MAP_SIZE)
