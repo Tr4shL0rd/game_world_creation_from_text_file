@@ -1,8 +1,11 @@
 ########
 # 0    #
 #      #
-# X    #
+#x     #
 #      #
 #      #
 #      #
 ########
+0 = player spawn point
+x = gold
+z = enemy
