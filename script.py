@@ -1,23 +1,39 @@
 import pygame
 import sys
 import math
-
+import argparse
+parser = argparse.ArgumentParser("script.py")
+parser.add_argument("-d","--debug", action="store_true", help="debug mode",dest="debug")
+parser.add_argument("-i", "--ignore", action="store_true", help="ignore errors", dest="ignore")
+args = parser.parse_args()
 pygame.init()
-
+if args.ignore:
+    print("IGNORING ERRORS")
+if args.debug:
+    print("DEBUG MODE")
+# Reads map from text file
 MAP = "".join(tuple(MAP.strip() for MAP in open("map.txt", "r").readlines()))
-map_file = open("map.txt", "r").readline()
-SCREEN_MAP_SIZE= (len(map_file)-1) * 60
-
-SCREEN_HEIGHT = SCREEN_MAP_SIZE  # 480
-SCREEN_WIDTH  = SCREEN_MAP_SIZE # SCREEN_HEIGHT * 2
-MAP_SIZE      = SCREEN_HEIGHT//60 # 8
-TILE_SIZE     = ((SCREEN_WIDTH) // MAP_SIZE)
-FOV           = math.pi / 3
-HALF_FOV      = FOV / 2
+MAP_FILE = open("map.txt", "r").readline()
+# gets the height of the map by getting the number of lines in the file except for the last 3 
+MAP_HEIGHT = len(open("map.txt", "r").readlines()[:-3])
+# gets the length of the map by getting the length of the first wall line
+MAP_LENGTH = len(MAP.split(" ")[0])-1
+# window size if the size of the map * 60
+SCREEN_MAP_SIZE = (len(MAP_FILE)-1) * 60
+SCREEN_HEIGHT   = SCREEN_MAP_SIZE # 480
+SCREEN_WIDTH    = SCREEN_MAP_SIZE # SCREEN_HEIGHT * 2
+MAP_SIZE        = SCREEN_HEIGHT//60 # 8
+TILE_SIZE       = ((SCREEN_WIDTH) // MAP_SIZE)
+FOV             = math.pi / 3
+HALF_FOV        = FOV / 2
 
 player_x = (SCREEN_WIDTH / 2) / 2
 player_y = (SCREEN_WIDTH / 2) / 2
 player_angle = math.pi
+
+if MAP_LENGTH != MAP_HEIGHT:
+    print("WARNING: height and length is not the same!" if not args.ignore else "NOTE: height != length")
+    if not args.ignore: exit()
 
 # game window
 win = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
@@ -32,25 +48,26 @@ def draw_map():
     for row in     range(MAP_SIZE):
         for col in range(MAP_SIZE):
             square = row * MAP_SIZE + col
-            print(f"{MAP_SIZE = }")
-            print(f"{ square = }")
-            print(f"{row = }")
-            print(f"{col = }")
-            print(f"row({row}) * MAP_SIZE({MAP_SIZE}) * col({col}) = {row * MAP_SIZE + col}")
-            print(f"{len(MAP) = }")
-            print(f"{MAP[63] = }")
-            print()
+            if args.debug:
+                print(f"{MAP_SIZE = }")
+                print(f"{square = }")
+                print(f"{row = }")
+                print(f"{col = }")
+                print(f"row({row}) * MAP_SIZE({MAP_SIZE}) * col({col}) = {row * MAP_SIZE + col}")
+                print(f"{len(MAP) = }")
+                print(f"{MAP[63] = }")
+                print()
             pygame.draw.rect(
                             win,
                             (200,200,200) if MAP[square] == '#' else (100,100,100),
                             (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 2, TILE_SIZE - 2)
                         )
-            #if MAP[square] == "X":            
-            #    pygame.draw.rect(
-            #                win,
-            #                (255,215,0),
-            #                (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 2, TILE_SIZE - 2)
-            #            )
+            if MAP[square].lower() == "x":            
+                pygame.draw.rect(
+                            win,
+                            (255,215,0),
+                            (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 2, TILE_SIZE - 2)
+                        )
 
     # draws player circle
     pygame.draw.circle(win, (255, 0, 0), (int(player_x),int(player_y)), 8)
