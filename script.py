@@ -6,11 +6,11 @@ parser = argparse.ArgumentParser("script.py")
 parser.add_argument("-d","--debug", action="store_true", help="debug mode",dest="debug")
 parser.add_argument("-i", "--ignore", action="store_true", help="ignore errors", dest="ignore")
 args = parser.parse_args()
-pygame.init()
 if args.ignore:
     print("IGNORING ERRORS")
 if args.debug:
     print("DEBUG MODE")
+pygame.init()
 # Reads map from text file
 MAP = "".join(tuple(MAP.strip() for MAP in open("map.txt", "r").readlines()))
 MAP_FILE = open("map.txt", "r").readline()
@@ -27,6 +27,11 @@ TILE_SIZE       = ((SCREEN_WIDTH) // MAP_SIZE)
 FOV             = math.pi / 3
 HALF_FOV        = FOV / 2
 
+# COLORS
+WALL_COLOR      = (200,200,200)
+GROUND_COLOR    = (100,100,100)
+GOLD_COLOR      = (255,215,0)
+PLAYER_COLOR    = (255,0,0)
 player_x = (SCREEN_WIDTH / 2) / 2
 player_y = (SCREEN_WIDTH / 2) / 2
 player_angle = math.pi
@@ -42,7 +47,6 @@ pygame.display.set_caption("Raycasting")
 
 # tick clock
 clock = pygame.time.Clock()
-
 def draw_map():
     # Draws the world 
     for row in     range(MAP_SIZE):
@@ -56,21 +60,22 @@ def draw_map():
                 print(f"row({row}) * MAP_SIZE({MAP_SIZE}) * col({col}) = {row * MAP_SIZE + col}")
                 print(f"{len(MAP) = }")
                 print(f"{MAP[63] = }")
-                print()
+                print(f"ticks = {pygame.time.get_ticks()}")
+                print("-"*20)
             pygame.draw.rect(
                             win,
-                            (200,200,200) if MAP[square] == '#' else (100,100,100),
+                            WALL_COLOR if MAP[square] == '#' else GROUND_COLOR,
                             (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 2, TILE_SIZE - 2)
                         )
             if MAP[square].lower() == "x":            
                 pygame.draw.rect(
                             win,
-                            (255,215,0),
+                            GOLD_COLOR,
                             (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 2, TILE_SIZE - 2)
                         )
 
     # draws player circle
-    pygame.draw.circle(win, (255, 0, 0), (int(player_x),int(player_y)), 8)
+    pygame.draw.circle(win, PLAYER_COLOR, (int(player_x),int(player_y)), 8)
     
     # draws green line in the middle front of player
     pygame.draw.line(win, (0,255,0),(player_x,player_y),(player_x - math.sin(player_angle - HALF_FOV) * 50,player_y + math.cos(player_angle - HALF_FOV) * 50),3)
@@ -115,7 +120,6 @@ while True:
         player_y -= math.cos(player_angle) * 5
 
     clock.tick(60)    
-
     fps = str(int(clock.get_fps()))
     font = pygame.font.SysFont('Monospace Regular', 30)
     textsurface = font.render(fps, False, (255,255,255))
